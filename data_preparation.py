@@ -74,7 +74,7 @@ async def expand_query(query, semaphore):
 
 async def main():
     tsv_file = "data/trimmed.tsv"
-    output_csv_file = "data/expanded_queries_2.csv"
+    output_csv_file = "data/test.csv"
     string_col_name = "string_data" # Column in TSV to extract queries from
     
     pandas_read_chunk_size = 10000  # How many rows pandas reads from TSV at a time
@@ -126,18 +126,18 @@ async def main():
                     continue # Skip empty or non-string queries before sending to API
                 tasks.append(expand_query(query=query_to_expand, semaphore=semaphore))
             
-            if tasks:
-                results = await tqdm.gather(*tasks, desc=f"Processing API Batch {api_batches_processed_count + 1}/{len(batch_of_queries_to_expand)} tasks")
+            # if tasks:
+            #     results = await tqdm.gather(*tasks, desc=f"Processing API Batch {api_batches_processed_count + 1}/{len(batch_of_queries_to_expand)} tasks")
                 
-                lines_to_write = []
-                for original_query, expanded_query in results:
-                    # Basic CSV escaping for quotes
-                    oq_escaped = original_query.replace('"', '""')
-                    eq_escaped = expanded_query.replace('"', '""')
-                    lines_to_write.append(f'"{oq_escaped}","{eq_escaped}"\n')
+            #     lines_to_write = []
+            #     for original_query, expanded_query in results:
+            #         # Basic CSV escaping for quotes
+            #         oq_escaped = original_query.replace('"', '""')
+            #         eq_escaped = expanded_query.replace('"', '""')
+            #         lines_to_write.append(f'"{oq_escaped}","{eq_escaped}"\n')
                 
-                await file.write("".join(lines_to_write))
-                await file.flush() # Ensure data is written to disk after each batch
+            #     await file.write("".join(lines_to_write))
+            #     await file.flush() # Ensure data is written to disk after each batch
             
             api_batches_processed_count += 1
             # Optional: Limit the number of API batches for testing
